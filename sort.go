@@ -45,18 +45,27 @@ func (p *RSQL) parseSort(values map[string]string, params *Params) error {
 			dir = Desc
 		}
 
-		f, ok := p.codec.Names[v]
-		if !ok {
-			return errors.New("invalid field to sort")
+		var f *StructField
+		var ok bool
+		if p.codec != nil {
+			// test if sortable field, as noted in struct tag
+			f, ok = p.codec.Names[v]
+			if !ok {
+				return errors.New("invalid field to sort")
+			}
+
+			if _, ok := f.Tag.Lookup("sort"); !ok {
+				return errors.New("invalid field to sort")
+			}
 		}
 
-		if _, ok := f.Tag.Lookup("sort"); !ok {
-			return errors.New("invalid field to sort")
-		}
-
-		name := f.Name
-		if v, ok := f.Tag.Lookup("column"); ok {
-			name = v
+		name := v
+		// name = f.Name
+		if f != nil {
+			// override column name
+			if v, ok := f.Tag.Lookup("column"); ok {
+				name = v
+			}
 		}
 
 		params.Sorts = append(params.Sorts, &Sort{

@@ -13,6 +13,8 @@ var (
 		"between",
 	}
 
+	allowAll = allowNums
+
 	allowOperators = map[interface{}][]string{
 		reflect.String:              {"eq", "ne", "gt", "gte", "lt", "lte", "in", "notIn", "like", "notLike"},
 		reflect.Bool:                {"eq", "ne"},

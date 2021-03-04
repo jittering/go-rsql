@@ -38,6 +38,7 @@ func (p *RSQL) parseFilter(values map[string]string, params *Params) error {
 
 loop:
 	for {
+		// lhs - field name
 		tkn1, err := nextToken(scan)
 		if err != nil {
 			if err == io.EOF {
@@ -51,25 +52,37 @@ loop:
 			continue
 		}
 
-		f, ok := p.codec.Names[tkn1.Value]
-		if !ok {
-			return fmt.Errorf("invalid field to filter")
-		}
+		var f *StructField
+		var ok bool
+		if p.codec != nil {
+			f, ok = p.codec.Names[tkn1.Value]
+			if !ok {
+				return fmt.Errorf("invalid field to filter")
+			}
 
-		if _, ok := f.Tag.Lookup("filter"); !ok {
-			return fmt.Errorf("invalid field to filter")
+			if _, ok := f.Tag.Lookup("filter"); !ok {
+				return fmt.Errorf("invalid field to filter")
+			}
 		}
 
 		name := tkn1.Value
-		if v, ok := f.Tag.Lookup("column"); ok {
-			name = v
+		if f != nil {
+			if v, ok := f.Tag.Lookup("column"); ok {
+				name = v
+			}
 		}
 
-		allows := getAllows(f.Type)
-		if v, ok := f.Tag.Lookup("allow"); ok {
-			allows = strings.Split(v, "|")
+		var allows []string
+		if f != nil {
+			allows = getAllows(f.Type)
+			if v, ok := f.Tag.Lookup("allow"); ok {
+				allows = strings.Split(v, "|")
+			}
+		} else {
+			allows = allowAll
 		}
 
+		// operator
 		tkn2, err := nextToken(scan)
 		if err != nil {
 			return err
@@ -80,16 +93,25 @@ loop:
 			return errors.New("operator not support for this field")
 		}
 
+		// rhs - value
 		tkn3, err := nextToken(scan)
 		if err != nil {
 			return err
 		}
 
-		v := reflect.New(f.Type).Elem()
-		tkn3.Value = strings.Trim(tkn3.Value, `"'`)
-		value, err := convertValue(v, tkn3.Value)
-		if err != nil {
-			return err
+		var value interface{}
+		if f != nil {
+			v := reflect.New(f.Type).Elem()
+			tkn3.Value = strings.Trim(tkn3.Value, `"'`)
+			value, err = convertValue(v, tkn3.Value)
+			if err != nil {
+				return err
+			}
+		} else {
+			// just always use strings, for now
+			// postgres and mysql, at least, will try to coerce the types
+			// automatically based on the field we are comparing with.
+			value = tkn3.Value
 		}
 
 		params.Filters = append(params.Filters, &Filter{
@@ -131,6 +153,7 @@ func nextToken(scan *lexmachine.Scanner) (*Token, error) {
 	return it.(*Token), nil
 }
 
+// convertValue string to the correct type for the db field represented by v
 func convertValue(v reflect.Value, value string) (interface{}, error) {
 	value = strings.TrimSpace(value)
 

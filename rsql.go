@@ -31,8 +31,6 @@ type RSQL struct {
 
 // New :
 func New(src interface{}) (*RSQL, error) {
-	v := reflect.ValueOf(src)
-	codec := getCodec(v.Type())
 	lexer := lexmachine.NewLexer()
 	dl := newDefaultTokenLexer()
 	dl.addActions(lexer)
@@ -44,7 +42,13 @@ func New(src interface{}) (*RSQL, error) {
 	p.LimitTag = "limit"
 	p.PageTag = "page"
 	p.DefaultLimit = defaultLimit
-	p.codec = codec
+
+	if src != nil {
+		v := reflect.ValueOf(src)
+		codec := getCodec(v.Type())
+		p.codec = codec
+	}
+
 	return p, nil
 }
 
