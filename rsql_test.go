@@ -122,7 +122,7 @@ func TestJSONTags(t *testing.T) {
 			SubmittedAt time.Time `json:"submitted_at"`
 			CreatedAt   time.Time `json:"created_at"`
 		}
-		p := MustNew(i)
+		p := MustNew(&i)
 		param, err := p.ParseQuery(`filter=int>10;status=eq="111";no=gt=1991;text==null&sort=status,-no&limit=100&page=2`)
 		require.NoError(t, err)
 		require.NotNil(t, param)
