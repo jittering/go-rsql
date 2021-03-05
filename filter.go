@@ -1,12 +1,10 @@
 package rsql
 
 import (
-	"encoding/base64"
 	"errors"
 	"fmt"
 	"io"
 	"reflect"
-	"strconv"
 	"strings"
 	"time"
 
@@ -151,80 +149,4 @@ func nextToken(scan *lexmachine.Scanner) (*Token, error) {
 		return nil, err
 	}
 	return it.(*Token), nil
-}
-
-// convertValue string to the correct type for the db field represented by v
-func convertValue(v reflect.Value, value string) (interface{}, error) {
-	value = strings.TrimSpace(value)
-
-	switch v.Type() {
-	case typeOfTime:
-		t, err := time.Parse(time.RFC3339, value)
-		if err != nil {
-			return nil, err
-		}
-		v.Set(reflect.ValueOf(t))
-
-	case typeOfByte:
-		x, err := base64.StdEncoding.DecodeString(value)
-		if err != nil {
-			return nil, err
-		}
-		v.SetBytes(x)
-
-	default:
-		switch v.Kind() {
-		case reflect.String:
-			v.SetString(value)
-
-		case reflect.Bool:
-			x, err := strconv.ParseBool(value)
-			if err != nil {
-				return nil, err
-			}
-			v.SetBool(x)
-
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			x, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				return nil, err
-			}
-			if v.OverflowInt(x) {
-				return nil, errors.New("int overflow")
-			}
-			v.SetInt(x)
-
-		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-			x, err := strconv.ParseUint(value, 10, 64)
-			if err != nil {
-				return nil, err
-			}
-			if v.OverflowUint(x) {
-				return nil, errors.New("unsigned int overflow")
-			}
-			v.SetUint(x)
-
-		case reflect.Float32, reflect.Float64:
-			x, err := strconv.ParseFloat(value, 64)
-			if err != nil {
-				return nil, err
-			}
-			if v.OverflowFloat(x) {
-				return nil, errors.New("float overflow")
-			}
-			v.SetFloat(x)
-
-		case reflect.Ptr:
-			if value == "null" {
-				zero := reflect.Zero(v.Type())
-				return zero.Interface(), nil
-			}
-			return convertValue(v.Elem(), value)
-
-		default:
-			return nil, fmt.Errorf("unsupported data type %v", v.Type())
-		}
-	}
-
-	return v.Interface(), nil
 }

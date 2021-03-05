@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gocraft/dbr"
 	"github.com/stretchr/testify/require"
 )
 
@@ -132,4 +133,24 @@ func TestJSONTags(t *testing.T) {
 		require.Len(t, param.Filters, 4)
 		require.Len(t, param.Sorts, 2)
 	}
+}
+
+func TestSqlTypes(t *testing.T) {
+	type todo struct {
+		ID         int64          `json:"id" pk:"true" gorm:"primaryKey"` // id
+		Name       dbr.NullString `json:"name"`                           // name
+		IsComplete dbr.NullBool   `json:"is_complete"`                    // is_complete
+		IsDeleted  dbr.NullBool   `json:"is_deleted"`                     // is_deleted
+		CreatedBy  dbr.NullInt64  `json:"created_by"`                     // created_by
+		UpdatedBy  dbr.NullInt64  `json:"updated_by"`                     // updated_by
+		CreatedAt  dbr.NullTime   `json:"created_at"`                     // created_at
+		UpdatedAt  dbr.NullTime   `json:"updated_at"`                     // updated_at
+	}
+
+	p := MustNew(todo{})
+	param, err := p.ParseQuery(`filter=name=like=foo&sort=updated_at`)
+	require.NoError(t, err)
+	require.NotNil(t, param)
+	require.True(t, len(param.Filters) > 0)
+	require.True(t, len(param.Sorts) > 0)
 }
