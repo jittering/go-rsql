@@ -44,7 +44,7 @@ func New(src interface{}) (*RSQL, error) {
 	p.DefaultLimit = defaultLimit
 
 	if src != nil {
-		v := reflect.ValueOf(src)
+		v := reflect.Indirect(reflect.ValueOf(src))
 		codec := getCodec(v.Type())
 		p.codec = codec
 	}
