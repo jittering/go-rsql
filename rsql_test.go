@@ -110,3 +110,26 @@ func TestNoRefType(t *testing.T) {
 	require.True(t, len(param.Sorts) > 0)
 	require.Equal(t, uint(100), param.Limit)
 }
+
+func TestJSONTags(t *testing.T) {
+	{
+		var i struct {
+			Name        string    `json:"n"`
+			Status      string    `json:"status"`
+			PtrStr      *string   `json:"text"`
+			No          int       `json:"no"`
+			Int         CustomInt `json:"int"`
+			SubmittedAt time.Time `json:"submitted_at"`
+			CreatedAt   time.Time `json:"created_at"`
+		}
+		p := MustNew(i)
+		param, err := p.ParseQuery(`filter=int>10;status=eq="111";no=gt=1991;text==null&sort=status,-no&limit=100&page=2`)
+		require.NoError(t, err)
+		require.NotNil(t, param)
+		require.True(t, len(param.Filters) > 0)
+		require.True(t, len(param.Sorts) > 0)
+		require.Equal(t, uint(100), param.Limit)
+		require.Len(t, param.Filters, 4)
+		require.Len(t, param.Sorts, 2)
+	}
+}

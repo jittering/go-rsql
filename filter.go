@@ -57,11 +57,11 @@ loop:
 		if p.codec != nil {
 			f, ok = p.codec.Names[tkn1.Value]
 			if !ok {
-				return fmt.Errorf("invalid field to filter")
+				return fmt.Errorf("invalid field to filter: %s", tkn1.Value)
 			}
 
 			if _, ok := f.Tag.Lookup("filter"); !ok {
-				return fmt.Errorf("invalid field to filter")
+				return fmt.Errorf("invalid field to filter: %s", tkn1.Value)
 			}
 		}
 

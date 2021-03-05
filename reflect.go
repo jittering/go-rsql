@@ -25,8 +25,38 @@ type Struct struct {
 	Names  map[string]*StructField
 }
 
-func NewTag(name string, tag reflect.StructTag) *StructTag {
-	paths := strings.Split(tag.Get(name), ",")
+func createJSONTag(fv reflect.StructField, tagVal string) *StructTag {
+	t := new(StructTag)
+	t.values = make(map[string]string)
+	if strings.ContainsRune(tagVal, ',') {
+		parts := strings.Split(tagVal, ",")
+		if parts[0] != "" {
+			t.name = parts[0]
+		} else if parts[0] == "" {
+			t.name = fv.Name
+		}
+	} else if tagVal == "-" || tagVal == "" {
+		t.name = fv.Name
+	} else {
+		t.name = tagVal
+	}
+	t.values["filter"] = ""
+	t.values["sort"] = ""
+	t.values["allow"] = strings.Join(allowAll, "|")
+	return t
+}
+
+func NewTag(fv reflect.StructField) *StructTag {
+	tagVal := fv.Tag.Get("rsql")
+	if tagVal == "" {
+		// look for json tag instead
+		tagVal = fv.Tag.Get("json")
+		if tagVal != "" {
+			return createJSONTag(fv, tagVal)
+		}
+	}
+
+	paths := strings.Split(tagVal, ",")
 	t := new(StructTag)
 	t.name = paths[0]
 	t.values = make(map[string]string)
@@ -52,7 +82,7 @@ func getCodec(t reflect.Type) *Struct {
 		fv := t.Field(i)
 		log.Println(fv)
 
-		tag := NewTag("rsql", fv.Tag)
+		tag := NewTag(fv)
 		f := new(StructField)
 		f.Name = fv.Name
 		f.Tag = tag
