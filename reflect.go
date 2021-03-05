@@ -1,7 +1,6 @@
 package rsql
 
 import (
-	"log"
 	"reflect"
 	"strings"
 )
@@ -80,7 +79,7 @@ func getCodec(t reflect.Type) *Struct {
 	codec := new(Struct)
 	for i := 0; i < t.NumField(); i++ {
 		fv := t.Field(i)
-		log.Println(fv)
+		// log.Println(fv)
 
 		tag := NewTag(fv)
 		f := new(StructField)
