@@ -27,11 +27,11 @@ func (n *Node) AddNode(child *Node) {
 func (n Node) String() string {
 	switch n.Type {
 	case NodeGroup:
-		s := ""
+		s := "("
 		for _, child := range n.Nodes {
 			s += child.String()
 		}
-		return s
+		return s + ")"
 	case NodeComparison:
 		return n.Comparison.String()
 	case NodeLogical:
@@ -51,7 +51,6 @@ func newNode(typ NodeType) *Node {
 func newCompNode(comp *Comparison) *Node {
 	return &Node{
 		Type:       NodeComparison,
-		Nodes:      []*Node{},
 		Comparison: comp,
 	}
 }
@@ -59,7 +58,6 @@ func newCompNode(comp *Comparison) *Node {
 func newLogicNode(l Logic) *Node {
 	return &Node{
 		Type:  NodeLogical,
-		Nodes: []*Node{},
 		Logic: l,
 	}
 }

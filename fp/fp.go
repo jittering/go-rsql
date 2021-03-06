@@ -1,7 +1,6 @@
 package fp
 
 import (
-	"github.com/kr/pretty"
 	"github.com/si3nloong/go-rsql/lex"
 )
 
@@ -29,15 +28,18 @@ func Parse(input string) (*Node, error) {
 	lexer := lex.Lex("rsql", input, lexComparison)
 
 	rootNode := newNode(NodeGroup)
+
 	var comp *Comparison
+	var nodes []*Node
 	var node *Node
 
 	node = rootNode // init
+	nodes = append(nodes, node)
 
 outer:
 	for {
 		tok := lexer.NextToken()
-		pretty.Println(tok)
+		// pretty.Println(tok)
 
 		switch tok.Type {
 		case TypeName:
@@ -59,6 +61,19 @@ outer:
 			node.AddNode(newLogicNode(And))
 
 		case TypeGroupStart:
+			if node == nil {
+				node = rootNode
+			} else {
+				group := newNode(NodeGroup)
+				node.AddNode(group)
+				node = group
+			}
+			nodes = append(nodes, node)
+
+		case TypeGroupEnd:
+			// pop, go back up
+			nodes = nodes[:len(nodes)-1]
+			node = nodes[len(nodes)-1]
 
 		case lex.TypeError, lex.TypeEOF:
 			break outer
@@ -73,6 +88,7 @@ func lexComparison(l *lex.Lexer) lex.StateFn {
 		l.Emit(TypeGroupStart)
 		return lexComparison
 	}
+	// l.Emit(TypeGroupStart) // implicit group start
 	return lexName
 }
 
