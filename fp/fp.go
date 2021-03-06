@@ -26,7 +26,7 @@ var (
 )
 
 func Parse(input string) (*Node, error) {
-	lexer := lex.Lex("rsql", input, lexName)
+	lexer := lex.Lex("rsql", input, lexComparison)
 
 	rootNode := newNode(NodeGroup)
 	var comp *Comparison
@@ -36,29 +36,29 @@ func Parse(input string) (*Node, error) {
 
 outer:
 	for {
-		// println("> next token")
 		tok := lexer.NextToken()
 		pretty.Println(tok)
 
 		switch tok.Type {
 		case TypeName:
 			comp = newComparison(tok.Value)
-			// fmt.Println("name", tok.Value)
+
 		case TypeOperator:
 			comp.Operator = operators[tok.Value]
-			// fmt.Println("op", tok.Value)
+
 		case TypeValue:
-			comp.Arguments = append(comp.Arguments, tok.Value)
-			// fmt.Println("value", tok.Value)
+			comp.AddArgument(tok.Value)
 
 		case TypeValuesEnd:
-			node.Nodes = append(node.Nodes, newCompNode(comp))
+			node.AddNode(newCompNode(comp))
 
 		case TypeOr:
-			node.Nodes = append(node.Nodes, newLogicNode(Or))
+			node.AddNode(newLogicNode(Or))
 
 		case TypeAnd:
-			node.Nodes = append(node.Nodes, newLogicNode(And))
+			node.AddNode(newLogicNode(And))
+
+		case TypeGroupStart:
 
 		case lex.TypeError, lex.TypeEOF:
 			break outer
@@ -66,6 +66,14 @@ outer:
 	}
 
 	return rootNode, nil
+}
+
+func lexComparison(l *lex.Lexer) lex.StateFn {
+	if l.Accept("(") {
+		l.Emit(TypeGroupStart)
+		return lexComparison
+	}
+	return lexName
 }
 
 func lexName(l *lex.Lexer) lex.StateFn {
@@ -170,20 +178,20 @@ func lexLogic(l *lex.Lexer) lex.StateFn {
 		return nil
 	}
 
+	if l.Accept(")") {
+		l.Emit(TypeGroupEnd)
+	}
+
 	eatSpaces(l)
 	if l.Consume("and") || l.Consume(";") {
 		l.Emit(TypeAnd)
 		eatSpaces(l)
-		return lexName
+		return lexComparison
 
 	} else if l.Consume(",") || l.Consume("or") {
 		l.Emit(TypeOr)
 		eatSpaces(l)
-		return lexName
+		return lexComparison
 	}
 	return nil
-}
-
-func isValueRune(r rune) bool {
-	return lex.IsAlphaNumeric(r)
 }

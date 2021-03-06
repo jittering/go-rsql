@@ -20,6 +20,10 @@ type Node struct {
 	Logic      Logic
 }
 
+func (n *Node) AddNode(child *Node) {
+	n.Nodes = append(n.Nodes, child)
+}
+
 func (n Node) String() string {
 	switch n.Type {
 	case NodeGroup:
@@ -64,6 +68,10 @@ type Comparison struct {
 	Selector  string
 	Operator  Expr
 	Arguments []string
+}
+
+func (c *Comparison) AddArgument(v string) {
+	c.Arguments = append(c.Arguments, v)
 }
 
 func (c Comparison) String() string {
