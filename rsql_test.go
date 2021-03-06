@@ -8,6 +8,7 @@ import (
 
 	"github.com/gocraft/dbr"
 	"github.com/kr/pretty"
+	"github.com/si3nloong/go-rsql/fp"
 	"github.com/stretchr/testify/require"
 )
 
@@ -159,19 +160,17 @@ func TestSqlTypes(t *testing.T) {
 }
 
 func TestParsing(t *testing.T) {
-	p := MustNew(nil)
-
 	// list from examples of java parser
 	// https://github.com/jirutka/rsql-parser
 	queryList := `
-	filter=name=="Kill Bill";year=gt=2003
-	filter=name=="Kill Bill" and year>2003
-	filter=genres=in=(sci-fi,action);(director=='Christopher Nolan',actor==*Bale);year=ge=2000
-	filter=genres=in=(sci-fi,action) and (director=='Christopher Nolan' or actor==*Bale) and year>=2000
-	filter=director.lastName==Nolan;year=ge=2000;year=lt=2010
-	filter=director.lastName==Nolan and year>=2000 and year<2010
-	filter=genres=in=(sci-fi,action);genres=out=(romance,animated,horror),director==Que*Tarantino
-	filter=genres=in=(sci-fi,action) and genres=out=(romance,animated,horror) or director==Que*Tarantino
+	name=="Kill Bill";year=gt=2003
+	name=="Kill Bill" and year>2003
+	genres=in=(sci-fi,action);(director=='Christopher Nolan',actor==*Bale);year=ge=2000
+	genres=in=(sci-fi,action) and (director=='Christopher Nolan' or actor==*Bale) and year>=2000
+	director.lastName==Nolan;year=ge=2000;year=lt=2010
+	director.lastName==Nolan and year>=2000 and year<2010
+	genres=in=(sci-fi,action);genres=out=(romance,animated,horror),director==Que*Tarantino
+	genres=in=(sci-fi,action) and genres=out=(romance,animated,horror) or director==Que*Tarantino
 	`
 	queries := strings.Split(queryList, "\n")
 	for _, q := range queries {
@@ -179,12 +178,24 @@ func TestParsing(t *testing.T) {
 		if q == "" {
 			continue
 		}
-		fmt.Println(q)
-		param, err := p.ParseQuery(q)
-		pretty.Println(param)
+		fmt.Println("\n\nquery:", q)
+
+		root, err := fp.Parse(q)
+		pretty.Println(root)
 		require.NoError(t, err)
-		require.NotNil(t, param)
-		require.NotEmpty(t, param.Filters)
-		require.Empty(t, param.Sorts)
+		require.NotEmpty(t, root.Nodes)
 	}
+}
+
+func TestGrouping(t *testing.T) {
+	q := `genres=in=(sci-fi,action);(director=='Christopher Nolan',actor==*Bale);year=ge=2000`
+
+	root, err := fp.Parse(q)
+	require.NoError(t, err)
+
+	pretty.Println(root)
+	fmt.Println(root.String())
+
+	require.NotEmpty(t, root.Nodes)
+	require.Len(t, root.Nodes, 5)
 }
