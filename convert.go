@@ -28,6 +28,11 @@ var (
 	}
 )
 
+var (
+	typeOfTime = reflect.TypeOf(time.Time{})
+	typeOfByte = reflect.TypeOf([]byte(nil))
+)
+
 // convertValue string to the correct type for the db field represented by v
 func convertValue(v reflect.Value, value string) (interface{}, error) {
 	value = strings.TrimSpace(value)

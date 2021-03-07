@@ -44,7 +44,7 @@ func (e Expr) String() string {
 	}
 }
 
-var operators = map[string]Expr{
+var Operators = map[string]Expr{
 	"==":      Equal,
 	"=eq=":    Equal,
 	"!=":      NotEqual,

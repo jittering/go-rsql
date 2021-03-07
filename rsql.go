@@ -2,8 +2,6 @@ package rsql
 
 import (
 	"reflect"
-
-	"github.com/timtadh/lexmachine"
 )
 
 const (
@@ -23,7 +21,6 @@ type RSQL struct {
 	LimitTag     string
 	PageTag      string
 	codec        *Struct
-	lexer        *lexmachine.Lexer
 	FormatColumn FormatFunc
 	DefaultLimit uint
 	MaxLimit     uint
@@ -31,12 +28,7 @@ type RSQL struct {
 
 // New :
 func New(src interface{}) (*RSQL, error) {
-	lexer := lexmachine.NewLexer()
-	dl := newDefaultTokenLexer()
-	dl.addActions(lexer)
-
 	p := new(RSQL)
-	p.lexer = lexer
 	p.FilterTag = "filter"
 	p.SortTag = "sort"
 	p.LimitTag = "limit"

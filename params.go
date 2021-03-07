@@ -1,9 +1,9 @@
 package rsql
 
-// Params :
+// Params stores the result of parsing the rsql query
 type Params struct {
 	Selects []string
-	Filters []*Filter
+	Filters *Node
 	Sorts   []*Sort
 	Limit   uint
 	Offset  uint

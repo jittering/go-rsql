@@ -8,7 +8,6 @@ import (
 
 	"github.com/gocraft/dbr"
 	"github.com/kr/pretty"
-	"github.com/si3nloong/go-rsql/fp"
 	"github.com/stretchr/testify/require"
 )
 
@@ -31,7 +30,7 @@ func TestRSQL(t *testing.T) {
 		param, err := p.ParseQuery(`filter=int>10;status=eq="111";no=gt=1991;text==null&sort=status,-no&limit=100&page=2`)
 		require.NoError(t, err)
 		require.NotNil(t, param)
-		require.True(t, len(param.Filters) > 0)
+		require.NotEmpty(t, param.Filters.Nodes)
 		require.True(t, len(param.Sorts) > 0)
 		require.Equal(t, uint(100), param.Limit)
 
@@ -111,7 +110,7 @@ func TestNoRefType(t *testing.T) {
 	param, err := p.ParseQuery(`filter=int>10;status=eq="111";no=gt=1991;text==null&sort=status,-no&limit=100&page=2`)
 	require.NoError(t, err)
 	require.NotNil(t, param)
-	require.True(t, len(param.Filters) > 0)
+	require.NotEmpty(t, param.Filters.Nodes)
 	require.True(t, len(param.Sorts) > 0)
 	require.Equal(t, uint(100), param.Limit)
 }
@@ -131,10 +130,10 @@ func TestJSONTags(t *testing.T) {
 		param, err := p.ParseQuery(`filter=int>10;status=eq="111";no=gt=1991;text==null&sort=status,-no&limit=100&page=2`)
 		require.NoError(t, err)
 		require.NotNil(t, param)
-		require.True(t, len(param.Filters) > 0)
+		require.NotEmpty(t, param.Filters.Nodes)
 		require.True(t, len(param.Sorts) > 0)
 		require.Equal(t, uint(100), param.Limit)
-		require.Len(t, param.Filters, 4)
+		require.Len(t, param.Filters.Nodes, 7)
 		require.Len(t, param.Sorts, 2)
 	}
 }
@@ -155,7 +154,7 @@ func TestSqlTypes(t *testing.T) {
 	param, err := p.ParseQuery(`filter=name=like=foo&sort=updated_at`)
 	require.NoError(t, err)
 	require.NotNil(t, param)
-	require.True(t, len(param.Filters) > 0)
+	require.NotEmpty(t, param.Filters.Nodes)
 	require.True(t, len(param.Sorts) > 0)
 }
 
@@ -180,7 +179,7 @@ func TestParsing(t *testing.T) {
 		}
 		fmt.Println("\n\nquery:", q)
 
-		root, err := fp.Parse(q)
+		root, err := ParseFilter(q)
 		pretty.Println(root)
 		require.NoError(t, err)
 		require.NotEmpty(t, root.Nodes)
@@ -190,7 +189,7 @@ func TestParsing(t *testing.T) {
 func TestGrouping(t *testing.T) {
 	q := `genres=in=(sci-fi,action);(director=='Christopher Nolan',actor==*Bale);year=ge=2000`
 
-	root, err := fp.Parse(q)
+	root, err := ParseFilter(q)
 	require.NoError(t, err)
 
 	pretty.Println(root)

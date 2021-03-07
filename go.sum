@@ -27,12 +27,6 @@ github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+
 github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UVUgZn+9EI=
 github.com/stretchr/testify v1.4.1-0.20190904163530-85f2b59c4459 h1:QxRTTI3zEzHS/l6/nGubGnZYZ/7C/HeWOKT36oFSrgM=
 github.com/stretchr/testify v1.4.1-0.20190904163530-85f2b59c4459/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81PSLYec5m4=
-github.com/timtadh/data-structures v0.5.2/go.mod h1:9R4XODhJ8JdWFEI8P/HJKqxuJctfBQw6fDibMQny2oU=
-github.com/timtadh/data-structures v0.5.3 h1:F2tEjoG9qWIyUjbvXVgJqEOGJPMIiYn7U5W5mE+i/vQ=
-github.com/timtadh/data-structures v0.5.3/go.mod h1:9R4XODhJ8JdWFEI8P/HJKqxuJctfBQw6fDibMQny2oU=
-github.com/timtadh/getopt v1.0.0/go.mod h1:L3EL6YN2G0eIAhYBo9b7SB9d/kEQmdnwthIlMJfj210=
-github.com/timtadh/lexmachine v0.2.3-0.20191122170559-2474ad5d8313 h1:bwwHP6SOlxj+5F6+eVoXSK7p0OJpE+0Zghx4BcdON8A=
-github.com/timtadh/lexmachine v0.2.3-0.20191122170559-2474ad5d8313/go.mod h1:An87z74QsP8eXNi0u+/7uJp24zHN0jSlvLZl/TXM1KE=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/net v0.0.0-20190603091049-60506f45cf65/go.mod h1:HSz+uSET+XFnRR8LxR5pz3Of3rY3CfYBVs4xY44aLks=
 golang.org/x/sys v0.0.0-20190215142949-d0b11bdaac8a/go.mod h1:STP8DvDyc/dI5b8T5hshtkjS+E42TnysNCUPdjciGhY=

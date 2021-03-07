@@ -1,4 +1,4 @@
-package fp
+package rsql
 
 import (
 	"github.com/si3nloong/go-rsql/lex"
@@ -24,7 +24,7 @@ var (
 	RESERVED_VAL = RESERVED + " "
 )
 
-func Parse(input string) (*Node, error) {
+func ParseFilter(input string) (*Node, error) {
 	lexer := lex.Lex("rsql", input, lexComparison)
 
 	rootNode := newNode(NodeGroup)
@@ -46,7 +46,7 @@ outer:
 			comp = newComparison(tok.Value)
 
 		case TypeOperator:
-			comp.Operator = operators[tok.Value]
+			comp.Operator = Operators[tok.Value]
 
 		case TypeValue:
 			comp.AddArgument(tok.Value)
